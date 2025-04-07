@@ -1,4 +1,39 @@
+# Node
 node_modules/
-.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Firebase
+.firebase/
+.firebaserc
+firestore-debug.log
+firestore.indexes.json
+firestore.rules
+storage.rules
+
+# Firebase Functions (caso use funções)
+functions/node_modules/
+functions/lib/
+functions/.env
+functions/.env.*  # caso use env por ambiente (dev, prod...)
+
+# Build
 dist/
-serviceAccountKey.json
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
