@@ -1,12 +1,13 @@
+import "./config/env";
+import "./config/firebase";
+
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import { setupSwagger } from "./swagger";
+
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import patientRoutes from "./routes/patientRoutes";
-
-dotenv.config();
 
 const app = express();
 app.use(express.json());

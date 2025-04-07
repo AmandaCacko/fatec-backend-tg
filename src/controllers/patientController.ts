@@ -1,49 +1,48 @@
-import { Request, Response } from "express";
-import admin from "../config/firebase";
+import { Request, Response, NextFunction } from "express";
+import admin from "firebase-admin";
+import { createPatient as createPatientService, getPatientByUserId } from "../services/patientService";
+import { Patient } from "../models/Patient";
 
-export const createPatient = async (req: Request, res: Response) => {
-  const { patientName, userId } = req.body;
+const db = admin.firestore();
 
+function generateAccessCode(length = 6): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+export const createPatient = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const patientRef = await admin.firestore().collection('patients').add({
-      PATIENT_NAME: patientName,
-      caretakers: [userId], 
+    const { patientName, userId } = req.body;
+
+    const newPatient: Patient = {
+      id: Date.now().toString(),
+      patientName,
+      accessCode: generateAccessCode(),
+      patientStock: {},
+      patientDailyRoutine: {},
+      patientEventualRoutine: {},
+      patientCicleRoutine: {},
+    };
+
+    await createPatientService(newPatient);
+
+    const userRef = db.collection("users").doc(userId);
+    await userRef.update({
+      userEnvironment: admin.firestore.FieldValue.arrayUnion(newPatient.accessCode),
     });
 
-    const caretakerRef = admin.firestore().collection('users').doc(userId);
-    await caretakerRef.update({
-      patients: admin.firestore.FieldValue.arrayUnion(patientRef.id), // Adiciona paciente ao cuidador
-    });
-
-    return res.status(201).json({ message: 'Paciente criado com sucesso', patientId: patientRef.id });
+    res.status(201).json({ message: "Paciente criado com sucesso", accessCode: newPatient.accessCode });
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao criar paciente", error });
+    next(error);
   }
 };
 
-export const getPatients = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
+export const getPatients = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const caretakerRef = admin.firestore().collection('users').doc(userId);
-    const caretakerDoc = await caretakerRef.get();
-
-    if (!caretakerDoc.exists) {
-      return res.status(404).json({ message: "Cuidador não encontrado" });
-    }
-
-    const caretakerData = caretakerDoc.data();
-    const patientIds = caretakerData?.patients || [];
-
-    const patientDocs = await Promise.all(
-      patientIds.map((patientId: string) =>
-        admin.firestore().collection('patients').doc(patientId).get()
-      )
-    );
-
-    const patients = patientDocs.map(doc => doc.data());
-    return res.status(200).json({ patients });
+    const userId = req.params.userId;
+    const patients = await getPatientByUserId(userId);
+    res.status(200).json(patients);
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao obter pacientes", error });
+    next(error);
   }
 };

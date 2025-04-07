@@ -1,23 +1,18 @@
-import admin from "firebase-admin";
-import * as firebase from "firebase/app";
-import "firebase/auth";
-import serviceAccount from "./serviceAccount"; 
+import dotenv from "dotenv";
+import firebaseAdmin from "firebase-admin";
 
+dotenv.config();
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  })
 });
 
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: `${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: `${process.env.FIREBASE_PROJECT_ID}.appspot.com`,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-};
+const db = firebaseAdmin.firestore();
 
-firebase.initializeApp(firebaseConfig);
+console.log("🔌 Firebase Firestore conectado");
 
-export { admin, firebase };
+export { firebaseAdmin as admin, db };

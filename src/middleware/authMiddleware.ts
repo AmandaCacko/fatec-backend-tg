@@ -1,18 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import admin from "../config/firebase";
+import { admin } from "../config/firebase";
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split("Bearer ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Token não fornecido" });
+    res.status(401).json({ message: "Token não fornecido" });
+    return;
   }
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
-    (req as any).user = decodedToken;  
+    req.body.userId = decodedToken.uid;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Token inválido" });
+    res.status(401).json({ message: "Token inválido" });
   }
 };

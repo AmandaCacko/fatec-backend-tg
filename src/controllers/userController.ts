@@ -1,20 +1,32 @@
-import { Request, Response } from "express";
-import admin from "../config/firebase";
+import { RequestHandler } from "express";
+import { User } from "../models/User";
+import { v4 as uuidv4 } from "uuid";
+import { createUser } from "../services/userService";
 
-export const createUser = async (req: Request, res: Response) => {
-  const { userName, userEmail, userPassword } = req.body;
-
+export const handleCreateUser: RequestHandler = async (req, res) => {
   try {
-    const userRef = await admin.firestore().collection('users').add({
-      USER_NAME: userName,
-      USER_EMAIL: userEmail,
-      USER_PASSWORD: userPassword,
-      USER_TYPE: "C",
-      patients: [],
-    });
+    const { userName, userEmail, userPassword, userType } = req.body;
 
-    return res.status(201).json({ message: "Usuário criado com sucesso", userId: userRef.id });
+    if (!userName || !userEmail || !userPassword || !userType) {
+      res.status(400).json({ error: "Dados incompletos" });
+      return;
+    }
+
+    const newUser: User = {
+      id: uuidv4(),
+      userName,
+      userEmail,
+      userPassword,
+      userType,
+      userPatient: [],
+      userEnvironment: [],
+    };
+
+    await createUser(newUser);
+
+    res.status(201).json({ message: "Usuário criado com sucesso", userId: newUser.id });
   } catch (error) {
-    return res.status(500).json({ message: "Erro ao criar usuário", error });
+    console.error("Erro ao criar usuário:", error);
+    res.status(500).json({ error: "Erro ao criar usuário" });
   }
 };
