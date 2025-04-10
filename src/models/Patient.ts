@@ -1,7 +1,7 @@
 export interface Patient {
-    id: string;
+    patientId: string;
     patientName: string;
-    accessCode: string;
+    patientAccessCode: string;
     patientStock: Record<string, any>;
     patientDailyRoutine: Record<string, any>;
     patientEventualRoutine: Record<string, any>;

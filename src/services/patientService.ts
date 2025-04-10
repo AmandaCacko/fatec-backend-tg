@@ -4,24 +4,24 @@ import { Patient } from "../models/Patient";
 const patientCollection = db.collection("patients");
 
 export const createPatient = async (patient: Patient) => {
-  await patientCollection.doc(patient.id).set(patient);
+  await patientCollection.doc(patient.patientId).set(patient);
 };
 
-export const getPatientById = async (id: string): Promise<Patient | null> => {
-  const doc = await patientCollection.doc(id).get();
+export const getPatientById = async (patientId: string): Promise<Patient | null> => {
+  const doc = await patientCollection.doc(patientId).get();
   return doc.exists ? (doc.data() as Patient) : null;
 };
 
-export const updatePatient = async (id: string, patientData: Partial<Patient>) => {
-  await patientCollection.doc(id).update(patientData);
+export const updatePatient = async (patientId: string, patientData: Partial<Patient>) => {
+  await patientCollection.doc(patientId).update(patientData);
 };
 
-export const deletePatient = async (id: string) => {
-  await patientCollection.doc(id).delete();
+export const deletePatient = async (patientId: string) => {
+  await patientCollection.doc(patientId).delete();
 };
 
-export const getPatientByAccessCode = async (code: string): Promise<Patient | null> => {
-  const snapshot = await patientCollection.where("accessCode", "==", code).limit(1).get();
+export const getPatientByAccessCode = async (patientAccessCode: string): Promise<Patient | null> => {
+  const snapshot = await patientCollection.where("accessCode", "==", patientAccessCode).limit(1).get();
   if (snapshot.empty) return null;
   return snapshot.docs[0].data() as Patient;
 };

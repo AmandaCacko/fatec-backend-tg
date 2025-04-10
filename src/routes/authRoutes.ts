@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, getUserProfile } from "../controllers/authController";
+import { login, logout, getUserProfile } from "../controllers/authController";
 import { authenticate } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -24,17 +24,33 @@ const router = Router();
  *           schema:
  *             type: object
  *             properties:
- *               email:
+ *               userEmail:
  *                 type: string
- *               password:
+ *               userPassword:
  *                 type: string
  *     responses:
  *       200:
  *         description: Token JWT gerado com sucesso
- *       401:
+ *       400:
  *         description: Credenciais inválidas
  */
 router.post("/login", login);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Efetua o logout do usuário
+ *     tags: [Autenticação]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout efetuado com sucesso
+ *       401:
+ *         description: Token inválido ou não fornecido
+ */
+router.post("/logout", authenticate, logout);
 
 /**
  * @swagger

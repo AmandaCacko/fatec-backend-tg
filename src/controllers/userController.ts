@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { User } from "../models/User";
 import { v4 as uuidv4 } from "uuid";
 import { createUser } from "../services/userService";
+import bcrypt from "bcryptjs";
 
 export const handleCreateUser: RequestHandler = async (req, res) => {
   try {
@@ -12,11 +13,13 @@ export const handleCreateUser: RequestHandler = async (req, res) => {
       return;
     }
 
+    const hashedPassword = await bcrypt.hash(userPassword, 10);
+
     const newUser: User = {
-      id: uuidv4(),
+      userId: uuidv4(),
       userName,
       userEmail,
-      userPassword,
+      userPassword: hashedPassword,
       userType,
       userPatient: [],
       userEnvironment: [],
@@ -24,7 +27,7 @@ export const handleCreateUser: RequestHandler = async (req, res) => {
 
     await createUser(newUser);
 
-    res.status(201).json({ message: "Usuário criado com sucesso", userId: newUser.id });
+    res.status(201).json({ message: "Usuário criado com sucesso", userId: newUser.userId });
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
     res.status(500).json({ error: "Erro ao criar usuário" });

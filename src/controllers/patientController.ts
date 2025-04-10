@@ -15,9 +15,9 @@ export const createPatient = async (req: Request, res: Response, next: NextFunct
     const { patientName, userId } = req.body;
 
     const newPatient: Patient = {
-      id: Date.now().toString(),
+      patientId: Date.now().toString(),
       patientName,
-      accessCode: generateAccessCode(),
+      patientAccessCode: generateAccessCode(),
       patientStock: {},
       patientDailyRoutine: {},
       patientEventualRoutine: {},
@@ -28,10 +28,10 @@ export const createPatient = async (req: Request, res: Response, next: NextFunct
 
     const userRef = db.collection("users").doc(userId);
     await userRef.update({
-      userEnvironment: admin.firestore.FieldValue.arrayUnion(newPatient.accessCode),
+      userEnvironment: admin.firestore.FieldValue.arrayUnion(newPatient.patientAccessCode),
     });
 
-    res.status(201).json({ message: "Paciente criado com sucesso", accessCode: newPatient.accessCode });
+    res.status(201).json({ message: "Paciente criado com sucesso", patientAccessCode: newPatient.patientAccessCode });
   } catch (error) {
     next(error);
   }
