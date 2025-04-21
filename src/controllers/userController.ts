@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { User } from "../models/User";
 import { v4 as uuidv4 } from "uuid";
-import { createUser } from "../services/userService";
+import { createUser, updateUser} from "../services/userService";
 import bcrypt from "bcryptjs";
 
 export const handleCreateUser: RequestHandler = async (req, res) => {
@@ -31,5 +31,18 @@ export const handleCreateUser: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
     res.status(500).json({ error: "Erro ao criar usuário" });
+  }
+};
+
+export const handleUpdateUser: RequestHandler = async (req, res) => {
+  const { userId } = req.params;
+  const userData = req.body;
+
+  try {
+    await updateUser(userId, userData);
+    res.status(200).json({ message: "Usuário atualizado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error);
+    res.status(500).json({ error: "Erro ao atualizar usuário" });
   }
 };
